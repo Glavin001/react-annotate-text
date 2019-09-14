@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import ReactDOM from "react-dom";
 import ReactAnnotateText from "../../src/index";
-import { htmlContent } from "./const";
+import { Content } from "./const";
 import "./styles.css";
 const nanoId = require("nano-id");
 
@@ -27,7 +27,6 @@ function App() {
   return (
     <div className="container">
       <ReactAnnotateText
-        srcDoc={htmlContent}
         iframeTitle={"Demo"}
         height={600}
         width={500}
@@ -58,7 +57,9 @@ function App() {
             Remove Highlight
           </button>
         )}
-      />
+      >
+        <Content />
+      </ReactAnnotateText>
     </div>
   );
 }

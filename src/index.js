@@ -1,4 +1,6 @@
-import React, { useRef, useState, useEffect } from "react";
+import React, { useRef, useState, useEffect, Component } from "react";
+import ReactDOM from "react-dom";
+
 import Button from "./button";
 import Annotation from "./annotation";
 import { findSelectButtonPosition } from "./functions/findSelectButtonPosition";
@@ -13,7 +15,8 @@ function ReactAnnotateText({
   highlightData,
   selectionPopup,
   hoverPopup,
-  iframeTitle
+  iframeTitle,
+  children
 }) {
   const iframeRef = useRef(null);
   const [currentSelectionData, changeCurrentSelectionData] = useState(null);
@@ -93,6 +96,9 @@ function ReactAnnotateText({
     };
   }, [scrollPosition]);
 
+  console.log("src", src);
+  console.log("srcDoc", srcDoc);
+
   return (
     <div
       onMouseLeave={clearButtonAndCurrentData}
@@ -103,14 +109,23 @@ function ReactAnnotateText({
         position: "relative"
       }}
     >
-      <iframe
-        src={src}
+      {/* <iframe
         srcDoc={srcDoc}
         width={width}
         height={height}
         title={iframeTitle}
         ref={iframeRef}
       ></iframe>
+       */}
+      <IFrame
+        srcDoc={srcDoc}
+        width={width}
+        height={height}
+        title={iframeTitle}
+        iframeRef={iframeRef}
+      >
+        {children}
+      </IFrame>
       {highlightData.length && (
         <Annotation
           highlightData={highlightData}
@@ -129,5 +144,59 @@ function ReactAnnotateText({
     </div>
   );
 }
+
+class IFrame extends Component {
+  componentDidMount() {
+    // this.iframeHead = this.iframeRef.contentDocument.head;
+    this.iframeRoot = this.node.contentDocument.body;
+    this.forceUpdate();
+  }
+
+  render() {
+    const { children, width, height, title } = this.props;
+    return (
+      <iframe ref={this.iframeRef} width={width} height={height} title={title}>
+        {/* {this.iframeHead && ReactDOM.createPortal(head, this.iframeHead)} */}
+        {this.iframeRoot && ReactDOM.createPortal(children, this.iframeRoot)}
+      </iframe>
+    );
+  }
+
+  get node() {
+    return this.iframeRef.current;
+  }
+
+  get iframeRef() {
+    return this.props.iframeRef;
+  }
+}
+
+/*
+function IFrame({ iframeRef, srcDoc, children, width, height, title, }) {
+  // const srcDoc = `<html><body><div class="root">Root</div></body></html>`;
+  useEffect(() => {
+    // setTimeout(() => {
+    if (iframeRef && iframeRef.current) {
+      const domNode = iframeRef.current.contentDocument.body;
+      if (domNode) {
+        ReactDOM.createPortal(
+          children,
+          domNode
+        );
+      }
+      }
+    // }, 100);
+  });
+  return (
+    <iframe
+      srcDoc={srcDoc}
+      width={width}
+      height={height}
+      title={title}
+      ref={iframeRef}
+    ></iframe>
+  );
+}
+*/
 
 export default ReactAnnotateText;
